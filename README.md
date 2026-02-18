@@ -40,7 +40,7 @@ npm run db:seed
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to register and start using the app.
+Open [http://localhost:6500](http://localhost:6500) to register and start using the app (the dev server defaults to port 6500).
 
 ## Project Structure
 
