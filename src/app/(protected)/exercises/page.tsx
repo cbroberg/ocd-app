@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { db } from "@/drizzle";
-import { exercises } from "@/drizzle/schema";
-import { eq, or, isNull } from "drizzle-orm";
+import { exercises, progressLogs } from "@/drizzle/schema";
+import { eq, or, isNull, and, sql } from "drizzle-orm";
 import { ExerciseList } from "@/components/exercises/exercise-list";
 import { ExerciseForm } from "@/components/exercises/exercise-form";
 
@@ -21,6 +21,28 @@ export default async function ExercisesPage() {
     )
     .all();
 
+  const counts = db
+    .select({
+      exerciseId: progressLogs.exerciseId,
+      count: sql<number>`count(*)`.as("count"),
+    })
+    .from(progressLogs)
+    .where(
+      and(
+        eq(progressLogs.userId, session.userId),
+        eq(progressLogs.completed, true)
+      )
+    )
+    .groupBy(progressLogs.exerciseId)
+    .all();
+
+  const completionCounts: Record<number, number> = {};
+  for (const row of counts) {
+    if (row.exerciseId != null) {
+      completionCounts[row.exerciseId] = row.count;
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,7 +52,7 @@ export default async function ExercisesPage() {
         </p>
       </div>
 
-      <ExerciseList exercises={allExercises} />
+      <ExerciseList exercises={allExercises} completionCounts={completionCounts} />
       <ExerciseForm />
     </div>
   );

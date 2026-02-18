@@ -23,9 +23,10 @@ interface Exercise {
 
 interface ExerciseListProps {
   exercises: Exercise[];
+  completionCounts: Record<number, number>;
 }
 
-export function ExerciseList({ exercises }: ExerciseListProps) {
+export function ExerciseList({ exercises, completionCounts }: ExerciseListProps) {
   const [category, setCategory] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
 
@@ -74,7 +75,7 @@ export function ExerciseList({ exercises }: ExerciseListProps) {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} />
+            <ExerciseCard key={exercise.id} exercise={exercise} completionCount={completionCounts[exercise.id] || 0} />
           ))}
         </div>
       )}

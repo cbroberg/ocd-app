@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DifficultyBadge } from "./difficulty-badge";
-import { Clock, ChevronRight } from "lucide-react";
+import { LogExerciseDialog } from "./log-exercise-dialog";
+import { Clock, ChevronRight, CheckCircle2 } from "lucide-react";
 
 interface Exercise {
   id: number;
@@ -27,10 +28,12 @@ interface Exercise {
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  completionCount: number;
 }
 
-export function ExerciseCard({ exercise }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, completionCount }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -55,6 +58,12 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
                 <Clock className="h-3 w-3" />
                 {exercise.estimatedMinutes}m
               </div>
+              {completionCount > 0 && (
+                <Badge variant="outline" className="ml-auto gap-1 text-xs">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Done {completionCount}x
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -85,6 +94,11 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
               </div>
             </div>
           )}
+          <LogExerciseDialog
+            exerciseId={exercise.id}
+            exerciseTitle={exercise.title}
+            onLogged={() => { setOpen(false); router.refresh(); }}
+          />
         </div>
       </DialogContent>
     </Dialog>
