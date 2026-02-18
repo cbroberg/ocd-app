@@ -1,0 +1,798 @@
+openapi: 3.1.0
+info:
+  title: OCD Management API
+  description: API for the OCD Management application - track symptoms, habits, exercises, and progress
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, name, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                  minLength: 2
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserPublic"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "409":
+          description: Email already registered
+
+  /api/auth/login:
+    post:
+      summary: Log in
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserPublic"
+        "401":
+          description: Invalid credentials
+
+  /api/auth/logout:
+    post:
+      summary: Log out
+      tags: [Auth]
+      responses:
+        "200":
+          description: Logged out
+
+  /api/auth/me:
+    get:
+      summary: Get current user
+      tags: [Auth]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserPublic"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/habits:
+    get:
+      summary: List user habits
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of habits
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  habits:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Habit"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Create a habit
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitInput"
+      responses:
+        "201":
+          description: Habit created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  habit:
+                    $ref: "#/components/schemas/Habit"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/habits/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a habit
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Habit details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  habit:
+                    $ref: "#/components/schemas/Habit"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      summary: Update a habit
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitInput"
+      responses:
+        "200":
+          description: Habit updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      summary: Delete a habit
+      tags: [Habits]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Habit deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/symptoms:
+    get:
+      summary: List symptom logs
+      tags: [Symptoms]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of symptom logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symptoms:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Symptom"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Log symptoms
+      tags: [Symptoms]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SymptomInput"
+      responses:
+        "201":
+          description: Symptom log created
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/symptoms/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a symptom log
+      tags: [Symptoms]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Symptom log details
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      summary: Update a symptom log
+      tags: [Symptoms]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SymptomInput"
+      responses:
+        "200":
+          description: Symptom log updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      summary: Delete a symptom log
+      tags: [Symptoms]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Symptom log deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/exercises:
+    get:
+      summary: List exercises
+      tags: [Exercises]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of exercises (system + user)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exercises:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Exercise"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Create a custom exercise
+      tags: [Exercises]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseInput"
+      responses:
+        "201":
+          description: Exercise created
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/exercises/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get an exercise
+      tags: [Exercises]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Exercise details
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      summary: Update an exercise
+      tags: [Exercises]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExerciseInput"
+      responses:
+        "200":
+          description: Exercise updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      summary: Delete an exercise
+      tags: [Exercises]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Exercise deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/progress:
+    get:
+      summary: List progress logs
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: List of progress logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ProgressLog"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      summary: Create a progress log
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressLogInput"
+      responses:
+        "201":
+          description: Progress log created
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/progress/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Get a progress log
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Progress log details
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      summary: Update a progress log
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressLogInput"
+      responses:
+        "200":
+          description: Progress log updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      summary: Delete a progress log
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Progress log deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/progress/stats:
+    get:
+      summary: Get progress statistics
+      tags: [Progress]
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 30
+          description: Number of days to look back
+      responses:
+        "200":
+          description: Progress statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      avgAnxiety:
+                        type: number
+                      symptomEntries:
+                        type: integer
+                      exercisesCompleted:
+                        type: integer
+                      avgAnxietyReduction:
+                        type: number
+                      activeHabits:
+                        type: integer
+                      habitCompletions:
+                        type: integer
+                  symptomTrend:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                        anxietyLevel:
+                          type: integer
+                        mood:
+                          type: string
+                  habitTrend:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                        completed:
+                          type: integer
+                        total:
+                          type: integer
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: ocd-session
+
+  schemas:
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+
+    Habit:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        category:
+          type: string
+        targetFrequency:
+          type: string
+          enum: [daily, weekly, as-needed]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+
+    HabitInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          default: general
+        targetFrequency:
+          type: string
+          enum: [daily, weekly, as-needed]
+          default: daily
+        isActive:
+          type: boolean
+          default: true
+
+    Symptom:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        date:
+          type: string
+        anxietyLevel:
+          type: integer
+          minimum: 0
+          maximum: 10
+        compulsionCount:
+          type: integer
+        compulsionDuration:
+          type: integer
+        intrusiveThoughtFrequency:
+          type: string
+          enum: [none, rare, occasional, frequent, constant]
+        resistanceLevel:
+          type: integer
+          minimum: 0
+          maximum: 10
+        mood:
+          type: string
+          enum: [great, good, neutral, bad, terrible]
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+
+    SymptomInput:
+      type: object
+      required: [date, anxietyLevel]
+      properties:
+        date:
+          type: string
+        anxietyLevel:
+          type: integer
+          minimum: 0
+          maximum: 10
+        compulsionCount:
+          type: integer
+          default: 0
+        compulsionDuration:
+          type: integer
+          default: 0
+        intrusiveThoughtFrequency:
+          type: string
+          enum: [none, rare, occasional, frequent, constant]
+          default: none
+        resistanceLevel:
+          type: integer
+          minimum: 0
+          maximum: 10
+          default: 5
+        mood:
+          type: string
+          enum: [great, good, neutral, bad, terrible]
+          default: neutral
+        notes:
+          type: string
+
+    Exercise:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [contamination, checking, symmetry, intrusive-thoughts, general]
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 5
+        estimatedMinutes:
+          type: integer
+        instructions:
+          type: string
+          nullable: true
+        isSystemExercise:
+          type: boolean
+        createdAt:
+          type: string
+
+    ExerciseInput:
+      type: object
+      required: [title, description, category]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [contamination, checking, symmetry, intrusive-thoughts, general]
+        difficulty:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 1
+        estimatedMinutes:
+          type: integer
+          default: 15
+        instructions:
+          type: string
+
+    ProgressLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        habitId:
+          type: integer
+          nullable: true
+        exerciseId:
+          type: integer
+          nullable: true
+        date:
+          type: string
+        completed:
+          type: boolean
+        anxietyBefore:
+          type: integer
+          nullable: true
+        anxietyAfter:
+          type: integer
+          nullable: true
+        durationMinutes:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+
+    ProgressLogInput:
+      type: object
+      required: [date]
+      properties:
+        habitId:
+          type: integer
+        exerciseId:
+          type: integer
+        date:
+          type: string
+        completed:
+          type: boolean
+          default: false
+        anxietyBefore:
+          type: integer
+          minimum: 0
+          maximum: 10
+        anxietyAfter:
+          type: integer
+          minimum: 0
+          maximum: 10
+        durationMinutes:
+          type: number
+        notes:
+          type: string
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Unauthorized
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: Not found
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
