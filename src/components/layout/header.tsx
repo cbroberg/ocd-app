@@ -10,14 +10,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MobileNav } from "./mobile-nav";
 
 interface HeaderProps {
   userName: string;
+  gravatarUrl: string;
 }
 
-export function Header({ userName }: HeaderProps) {
+export function Header({ userName, gravatarUrl }: HeaderProps) {
   const router = useRouter();
   const initials = userName
     .split(" ")
@@ -42,6 +43,7 @@ export function Header({ userName }: HeaderProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
+                <AvatarImage src={gravatarUrl} alt={userName} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                   {initials}
                 </AvatarFallback>

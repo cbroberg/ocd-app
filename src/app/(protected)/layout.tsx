@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { createHash } from "crypto";
 import { getSession } from "@/lib/auth";
 import { db } from "@/drizzle";
 import { users } from "@/drizzle/schema";
@@ -17,7 +18,7 @@ export default async function ProtectedLayout({
   }
 
   const user = db
-    .select({ name: users.name })
+    .select({ name: users.name, email: users.email })
     .from(users)
     .where(eq(users.id, session.userId))
     .get();
@@ -26,11 +27,16 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
+  const emailHash = createHash("md5")
+    .update(user.email.toLowerCase().trim())
+    .digest("hex");
+  const gravatarUrl = `https://www.gravatar.com/avatar/${emailHash}?d=404&s=80`;
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header userName={user.name} />
+        <Header userName={user.name} gravatarUrl={gravatarUrl} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
       </div>
     </div>

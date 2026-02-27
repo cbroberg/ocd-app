@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "OCD Management",
   description: "Track symptoms, build healthy habits, and manage OCD with guided exercises",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
