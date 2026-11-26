@@ -46,3 +46,10 @@ next-env.d.ts
 *.db-wal
 *.db-shm
 drizzle-migrations/
+
+# cardmem — secret-bearing files, never commit
+.mcp.json
+.env
+.env.*
+!.env.example
+.claude/settings.local.json

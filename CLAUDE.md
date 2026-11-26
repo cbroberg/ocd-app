@@ -81,3 +81,21 @@ src/
 
 - `JWT_SECRET` — **Required**. Signing key for JWT tokens.
 - `DATABASE_URL` — Path to SQLite file. Defaults to `./sqlite.db`.
+
+## Project layout
+
+> **Fill this in for THIS repo.** Every cardmem-compatible repo MUST have a `## Project layout` section with the columns `Area | Path | Notes`. The cardmem Init flow (or the `feature` skill) populates it from the repo's actual structure — replace the example rows below.
+
+| Area | Path | Notes |
+|---|---|---|
+| _(example — replace)_ App | `src/` | Main application code |
+| _(example — replace)_ Tests | `tests/` | Test suites |
+
+Replace the example rows above with this repo's real layout before relying on cardmem skills to scope changes.
+
+
+## Fleet rules (cardmem-owned)
+
+@.claude/fleet.md
+@.claude/decisions-index.md
+
