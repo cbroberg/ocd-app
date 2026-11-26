@@ -84,14 +84,17 @@ src/
 
 ## Project layout
 
-> **Fill this in for THIS repo.** Every cardmem-compatible repo MUST have a `## Project layout` section with the columns `Area | Path | Notes`. The cardmem Init flow (or the `feature` skill) populates it from the repo's actual structure — replace the example rows below.
-
 | Area | Path | Notes |
 |---|---|---|
-| _(example — replace)_ App | `src/` | Main application code |
-| _(example — replace)_ Tests | `tests/` | Test suites |
-
-Replace the example rows above with this repo's real layout before relying on cardmem skills to scope changes.
+| Pages | `src/app/(auth)/`, `src/app/(protected)/` | Login/register; dashboard, tracking, exercises, progress (auth-guarded layout) |
+| API | `src/app/api/` | Route handlers: auth, habits, symptoms, exercises, progress (+ stats) |
+| Components | `src/components/` | `ui/` primitives + feature groups: dashboard, exercises, tracking, progress, layout |
+| Database | `src/drizzle/` | Drizzle schema, SQLite connection, system-exercise seed |
+| Lib | `src/lib/`, `src/proxy.ts` | JWT auth, Zod validations, utils; Next.js 16 proxy (route guard) |
+| Static | `public/` | Static assets |
+| Docs | `docs/` | `PLAN.md` (owner's plan), `features/` plan-docs (written via cardmem) |
+| CI | `.github/workflows/` | Fleet secret gate + security workflows (cardmem-owned) |
+| Tests | — | None yet |
 
 
 ## Fleet rules (cardmem-owned)
